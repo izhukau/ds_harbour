@@ -6,6 +6,7 @@ struct SendResult {
     bool responded = false;
     int status = 0;
     std::string error;
+    std::string body;
     int attempts = 0;
 };
 

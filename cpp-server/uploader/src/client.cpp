@@ -23,6 +23,7 @@ SendResult sendPayment(const std::string &baseUrl, const Payment &p) {
     if (res) {
         out.responded = true;
         out.status = res->status;
+        out.body = res->body;
     } else {
         out.error = "transport error: " + httplib::to_string(res.error());
     }
