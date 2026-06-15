@@ -39,10 +39,16 @@ add_library(client src/client.cpp)
 target_include_directories(client PUBLIC include)
 target_link_libraries(client PUBLIC httplib::httplib nlohmann_json::nlohmann_json)
 
+add_library(lb src/lb.cpp)
+target_include_directories(lb PUBLIC include)
+
 add_executable(app src/main.cpp)
 target_link_libraries(app PRIVATE parser client)
 
+add_executable(load_balancer src/lb_main.cpp)
+target_link_libraries(load_balancer PRIVATE lb httplib::httplib)
+
 enable_testing()
-add_executable(tests tests/test_parser.cpp)
-target_link_libraries(tests PRIVATE parser doctest_header)
+add_executable(tests tests/test_parser.cpp tests/test_lb.cpp)
+target_link_libraries(tests PRIVATE parser lb doctest_header)
 add_test(NAME tests COMMAND tests)
