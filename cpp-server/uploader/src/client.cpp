@@ -12,7 +12,6 @@ SendResult sendPayment(const std::string &baseUrl, const Payment &p) {
     body["loyaltyCardId"] = p.loyaltyCardId;
 
     httplib::Client client(baseUrl);
-    // follow 302 from the load balancer; httplib re-sends POST with the same body
     client.set_follow_location(true);
     httplib::Headers headers = {
         {"Store-Id", p.storeId},

@@ -14,8 +14,7 @@ namespace {
 
 constexpr int kHealthIntervalSec = 3;
 constexpr int kHealthTimeoutSec = 2;
-// Backend has no actuator, so probe the real API: any HTTP answer below 500
-// means the instance is up and serving requests.
+
 constexpr const char *kHealthPath = "/api/v1/payments?storeId=lb-health-check";
 
 void healthCheckLoop(BackendPool &pool, std::atomic<bool> &running) {
@@ -63,7 +62,6 @@ void redirect(BackendPool &pool, const httplib::Request &req, httplib::Response 
         return;
     }
 
-    // req.target keeps the original path + query string
     const std::string &target = req.target.empty() ? req.path : req.target;
     res.status = 302;
     res.set_header("Location", *backend + target);
@@ -71,7 +69,7 @@ void redirect(BackendPool &pool, const httplib::Request &req, httplib::Response 
     std::cout << "[lb] " << req.method << " " << target << " -> " << *backend << "\n";
 }
 
-} // namespace
+}
 
 int main(int argc, char **argv) {
     if (argc < 3) {

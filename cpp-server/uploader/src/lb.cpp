@@ -3,7 +3,6 @@
 BackendPool::BackendPool(std::vector<std::string> urls) {
     backends_.reserve(urls.size());
     for (auto &url : urls) {
-        // strip a single trailing slash so Location = url + path stays clean
         if (!url.empty() && url.back() == '/') {
             url.pop_back();
         }
