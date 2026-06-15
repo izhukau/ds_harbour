@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 3.15)
 
 project(uploader VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+list(APPEND CMAKE_PREFIX_PATH /opt/homebrew/opt/libpqxx /opt/homebrew/opt/libpq)
 
 include(FetchContent)
 
@@ -29,6 +31,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(httplib json doctest)
 
+find_package(libpqxx CONFIG REQUIRED)
+
 add_library(doctest_header INTERFACE)
 target_include_directories(doctest_header INTERFACE ${doctest_SOURCE_DIR})
 
@@ -39,10 +43,17 @@ add_library(client src/client.cpp)
 target_include_directories(client PUBLIC include)
 target_link_libraries(client PUBLIC httplib::httplib nlohmann_json::nlohmann_json)
 
+add_library(store src/shard_router.cpp src/store.cpp)
+target_include_directories(store PUBLIC include)
+target_link_libraries(store PUBLIC libpqxx::pqxx)
+
 add_executable(app src/main.cpp)
 target_link_libraries(app PRIVATE parser client)
 
+add_executable(async_server src/async_server.cpp)
+target_link_libraries(async_server PRIVATE store client httplib::httplib nlohmann_json::nlohmann_json)
+
 enable_testing()
-add_executable(tests tests/test_parser.cpp)
-target_link_libraries(tests PRIVATE parser doctest_header)
+add_executable(tests tests/test_parser.cpp tests/test_shard_router.cpp)
+target_link_libraries(tests PRIVATE parser store doctest_header)
 add_test(NAME tests COMMAND tests)
